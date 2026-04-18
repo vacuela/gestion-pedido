@@ -24,7 +24,7 @@ class CustomerDocumentMapperTest {
 
         CustomerDocument result = mapper.toDocument(customer);
 
-        assertEquals("1", result.getId());
+        assertEquals("1", result.getUserId());
         assertEquals("Juan", result.getNombre());
         assertEquals("Pérez", result.getApellidoPaterno());
         assertEquals("López", result.getApellidoMaterno());
@@ -38,7 +38,7 @@ class CustomerDocumentMapperTest {
 
         Customer result = mapper.toDomain(document);
 
-        assertEquals("1", result.getId());
+        assertEquals("1", result.getUserId());
         assertEquals("Juan", result.getNombre());
         assertEquals("Pérez", result.getApellidoPaterno());
         assertEquals("López", result.getApellidoMaterno());

@@ -58,7 +58,7 @@ class CustomerControllerTest {
 
         customer = new Customer("1", "Juan", "Pérez", "López", "juan@example.com");
         response = new CustomerResponse("1", "Juan", "Pérez", "López", "juan@example.com");
-        request = new CustomerRequest("Juan", "Pérez", "López", "juan@example.com");
+        request = new CustomerRequest("1","Juan", "Pérez", "López", "juan@example.com");
     }
 
     @Nested
@@ -84,7 +84,7 @@ class CustomerControllerTest {
         @Test
         @DisplayName("should return 400 when validation fails")
         void shouldReturn400WhenInvalid() throws Exception {
-            CustomerRequest invalid = new CustomerRequest("", "", null, "invalid-email");
+            CustomerRequest invalid = new CustomerRequest("","", "", null, "invalid-email");
 
             mockMvc.perform(post("/api/v1/customers")
                             .contentType(MediaType.APPLICATION_JSON)
@@ -121,7 +121,7 @@ class CustomerControllerTest {
 
             mockMvc.perform(get("/api/v1/customers/1"))
                     .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.id").value("1"))
+                    .andExpect(jsonPath("$.userId").value("1"))
                     .andExpect(jsonPath("$.firstName").value("Juan"));
         }
 
@@ -171,7 +171,7 @@ class CustomerControllerTest {
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.id").value("1"));
+                    .andExpect(jsonPath("$.userId").value("1"));
         }
 
         @Test

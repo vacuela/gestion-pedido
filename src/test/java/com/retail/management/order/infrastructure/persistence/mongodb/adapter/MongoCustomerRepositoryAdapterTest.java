@@ -49,7 +49,7 @@ class MongoCustomerRepositoryAdapterTest {
 
         Customer result = adapter.save(customer);
 
-        assertEquals("1", result.getId());
+        assertEquals("1", result.getUserId());
         verify(mongoRepository).save(document);
     }
 

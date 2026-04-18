@@ -4,7 +4,7 @@ import java.util.Objects;
 
 public class Customer {
 
-    private String id;
+    private String userId;
     private String nombre;
     private String apellidoPaterno;
     private String apellidoMaterno;
@@ -13,20 +13,20 @@ public class Customer {
     public Customer() {
     }
 
-    public Customer(String id, String nombre, String apellidoPaterno, String apellidoMaterno, String email) {
-        this.id = id;
+    public Customer(String userId, String nombre, String apellidoPaterno, String apellidoMaterno, String email) {
+        this.userId = userId;
         this.nombre = nombre;
         this.apellidoPaterno = apellidoPaterno;
         this.apellidoMaterno = apellidoMaterno;
         this.email = email;
     }
 
-    public String getId() {
-        return id;
+    public String getUserId() {
+        return userId;
     }
 
-    public void setId(String id) {
-        this.id = id;
+    public void setUserId(String userId) {
+        this.userId = userId;
     }
 
     public String getNombre() {
@@ -66,11 +66,11 @@ public class Customer {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Customer customer = (Customer) o;
-        return Objects.equals(id, customer.id);
+        return Objects.equals(userId, customer.userId);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(id);
+        return Objects.hashCode(userId);
     }
 }

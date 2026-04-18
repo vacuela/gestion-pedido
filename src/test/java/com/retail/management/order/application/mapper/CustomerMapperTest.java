@@ -21,11 +21,11 @@ class CustomerMapperTest {
     @Test
     @DisplayName("should map CustomerRequest to domain Customer")
     void shouldMapToDomain() {
-        CustomerRequest request = new CustomerRequest("Juan", "Pérez", "López", "juan@example.com");
+        CustomerRequest request = new CustomerRequest("32761236886213", "Juan", "Pérez", "López", "juan@example.com");
 
         Customer result = mapper.toDomain(request);
 
-        assertNull(result.getId());
+        assertNull(result.getUserId());
         assertEquals("Juan", result.getNombre());
         assertEquals("Pérez", result.getApellidoPaterno());
         assertEquals("López", result.getApellidoMaterno());
@@ -35,11 +35,11 @@ class CustomerMapperTest {
     @Test
     @DisplayName("should map domain Customer to CustomerResponse")
     void shouldMapToResponse() {
-        Customer customer = new Customer("1", "Juan", "Pérez", "López", "juan@example.com");
+        Customer customer = new Customer("32761236886213", "Juan", "Pérez", "López", "juan@example.com");
 
         CustomerResponse result = mapper.toResponse(customer);
 
-        assertEquals("1", result.id());
+        assertEquals("32761236886213", result.userId());
         assertEquals("Juan", result.nombre());
         assertEquals("Pérez", result.apellidoPaterno());
         assertEquals("López", result.apellidoMaterno());

@@ -10,6 +10,7 @@ public class CustomerMapper {
 
     public Customer toDomain(CustomerRequest request) {
         Customer customer = new Customer();
+        customer.setUserId(request.userId());
         customer.setNombre(request.nombre());
         customer.setApellidoPaterno(request.apellidoPaterno());
         customer.setApellidoMaterno(request.apellidoMaterno());
@@ -19,7 +20,7 @@ public class CustomerMapper {
 
     public CustomerResponse toResponse(Customer customer) {
         return new CustomerResponse(
-                customer.getId(),
+                customer.getUserId(),
                 customer.getNombre(),
                 customer.getApellidoPaterno(),
                 customer.getApellidoMaterno(),

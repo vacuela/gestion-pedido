@@ -9,7 +9,7 @@ public class CustomerDocumentMapper {
 
     public CustomerDocument toDocument(Customer customer) {
         return new CustomerDocument(
-                customer.getId(),
+                customer.getUserId(),
                 customer.getNombre(),
                 customer.getApellidoPaterno(),
                 customer.getApellidoMaterno(),
@@ -19,7 +19,7 @@ public class CustomerDocumentMapper {
 
     public Customer toDomain(CustomerDocument document) {
         return new Customer(
-                document.getId(),
+                document.getUserId(),
                 document.getNombre(),
                 document.getApellidoPaterno(),
                 document.getApellidoMaterno(),

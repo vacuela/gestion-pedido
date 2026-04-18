@@ -8,7 +8,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public class CustomerDocument {
 
     @Id
-    private String id;
+    private String userId;
     private String nombre;
     private String apellidoPaterno;
     private String apellidoMaterno;
@@ -19,20 +19,20 @@ public class CustomerDocument {
     public CustomerDocument() {
     }
 
-    public CustomerDocument(String id, String nombre, String apellidoPaterno, String apellidoMaterno, String email) {
-        this.id = id;
+    public CustomerDocument(String userId, String nombre, String apellidoPaterno, String apellidoMaterno, String email) {
+        this.userId = userId;
         this.nombre = nombre;
         this.apellidoPaterno = apellidoPaterno;
         this.apellidoMaterno = apellidoMaterno;
         this.email = email;
     }
 
-    public String getId() {
-        return id;
+    public String getUserId() {
+        return userId;
     }
 
-    public void setId(String id) {
-        this.id = id;
+    public void setUserId(String userId) {
+        this.userId = userId;
     }
 
     public String getNombre() {

@@ -43,7 +43,7 @@ public class CustomerService implements CustomerServicePort {
                 .orElseThrow(() -> new CustomerNotFoundException(id));
 
         customerRepository.findByEmail(customer.getEmail())
-                .filter(c -> !c.getId().equals(id))
+                .filter(c -> !c.getUserId().equals(id))
                 .ifPresent(c -> {
                     throw new DuplicateEmailException(customer.getEmail());
                 });
