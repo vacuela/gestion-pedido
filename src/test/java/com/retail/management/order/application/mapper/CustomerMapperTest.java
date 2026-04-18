@@ -25,7 +25,7 @@ class CustomerMapperTest {
 
         Customer result = mapper.toDomain(request);
 
-        assertNull(result.getUserId());
+        assertNotNull(result.getUserId());
         assertEquals("Juan", result.getNombre());
         assertEquals("Pérez", result.getApellidoPaterno());
         assertEquals("López", result.getApellidoMaterno());

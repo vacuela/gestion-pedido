@@ -56,9 +56,9 @@ class CustomerControllerTest {
                 .build();
         objectMapper = new ObjectMapper();
 
-        customer = new Customer("1", "Juan", "Pérez", "López", "juan@example.com");
-        response = new CustomerResponse("1", "Juan", "Pérez", "López", "juan@example.com");
-        request = new CustomerRequest("1","Juan", "Pérez", "López", "juan@example.com");
+        customer = new Customer("12345-789", "Juan", "Pérez", "López", "juan@example.com");
+        response = new CustomerResponse("12345-789", "Juan", "Pérez", "López", "juan@example.com");
+        request = new CustomerRequest("12345-789","Juan", "Pérez", "López", "juan@example.com");
     }
 
     @Nested
@@ -76,8 +76,10 @@ class CustomerControllerTest {
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isCreated())
-                    .andExpect(jsonPath("$.id").value("1"))
-                    .andExpect(jsonPath("$.firstName").value("Juan"))
+                    .andExpect(jsonPath("$.userId").value("12345-789"))
+                    .andExpect(jsonPath("$.nombre").value("Juan"))
+                    .andExpect(jsonPath("$.apellidoPaterno").value("Pérez"))
+                    .andExpect(jsonPath("$.apellidoMaterno").value("López"))
                     .andExpect(jsonPath("$.email").value("juan@example.com"));
         }
 
@@ -116,13 +118,17 @@ class CustomerControllerTest {
         @Test
         @DisplayName("should return customer when found")
         void shouldReturnCustomer() throws Exception {
-            when(customerService.findById("1")).thenReturn(Optional.of(customer));
+            when(customerService.findById("12345-789")).thenReturn(Optional.of(customer));
             when(customerMapper.toResponse(customer)).thenReturn(response);
 
-            mockMvc.perform(get("/api/v1/customers/1"))
+            mockMvc.perform(get("/api/v1/customers/12345-789"))
                     .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.userId").value("1"))
-                    .andExpect(jsonPath("$.firstName").value("Juan"));
+                    .andExpect(jsonPath("$.userId").value("12345-789"))
+                    .andExpect(jsonPath("$.nombre").value("Juan"))
+                    .andExpect(jsonPath("$.apellidoPaterno").value("Pérez"))
+                    .andExpect(jsonPath("$.apellidoMaterno").value("López"))
+                    .andExpect(jsonPath("$.email").value("juan@example.com"));
+
         }
 
         @Test
@@ -164,14 +170,14 @@ class CustomerControllerTest {
         @DisplayName("should update customer and return 200")
         void shouldUpdateCustomer() throws Exception {
             when(customerMapper.toDomain(any(CustomerRequest.class))).thenReturn(customer);
-            when(customerService.update(eq("1"), any(Customer.class))).thenReturn(customer);
+            when(customerService.update(eq("12345-789"), any(Customer.class))).thenReturn(customer);
             when(customerMapper.toResponse(customer)).thenReturn(response);
 
-            mockMvc.perform(put("/api/v1/customers/1")
+            mockMvc.perform(put("/api/v1/customers/12345-789")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.userId").value("1"));
+                    .andExpect(jsonPath("$.userId").value("12345-789"));
         }
 
         @Test
