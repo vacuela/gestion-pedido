@@ -8,6 +8,7 @@ import com.retail.management.order.domain.exception.CustomerNotFoundException;
 import com.retail.management.order.domain.exception.DuplicateEmailException;
 import com.retail.management.order.domain.model.Customer;
 import com.retail.management.order.domain.port.in.CustomerServicePort;
+import com.retail.management.order.domain.port.out.OrderApiPort;
 import com.retail.management.order.infrastructure.rest.exception.GlobalExceptionHandler;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -21,6 +22,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -42,6 +44,9 @@ class CustomerControllerTest {
     @Mock
     private CustomerMapper customerMapper;
 
+    @Mock
+    private OrderApiPort orderApiPort;
+
     @InjectMocks
     private CustomerController customerController;
 
@@ -57,7 +62,7 @@ class CustomerControllerTest {
         objectMapper = new ObjectMapper();
 
         customer = new Customer("12345-789", "Juan", "Pérez", "López", "juan@example.com");
-        response = new CustomerResponse("12345-789", "Juan", "Pérez", "López", "juan@example.com");
+        response = new CustomerResponse("12345-789", "Juan", "Pérez", "López", "juan@example.com", Collections.emptyList());
         request = new CustomerRequest("12345-789","Juan", "Pérez", "López", "juan@example.com");
     }
 
@@ -118,8 +123,12 @@ class CustomerControllerTest {
         @Test
         @DisplayName("should return customer when found")
         void shouldReturnCustomer() throws Exception {
+            List<String> orders = List.of("20251216366900020031");
+            CustomerResponse responseWithOrders = new CustomerResponse("12345-789", "Juan", "Pérez", "López", "juan@example.com", orders);
+
             when(customerService.findById("12345-789")).thenReturn(Optional.of(customer));
-            when(customerMapper.toResponse(customer)).thenReturn(response);
+            when(orderApiPort.findOrderRefsByUserId("12345-789")).thenReturn(orders);
+            when(customerMapper.toResponse(customer, orders)).thenReturn(responseWithOrders);
 
             mockMvc.perform(get("/api/v1/customers/12345-789"))
                     .andExpect(status().isOk())
@@ -127,8 +136,8 @@ class CustomerControllerTest {
                     .andExpect(jsonPath("$.nombre").value("Juan"))
                     .andExpect(jsonPath("$.apellidoPaterno").value("Pérez"))
                     .andExpect(jsonPath("$.apellidoMaterno").value("López"))
-                    .andExpect(jsonPath("$.email").value("juan@example.com"));
-
+                    .andExpect(jsonPath("$.email").value("juan@example.com"))
+                    .andExpect(jsonPath("$.orders[0]").value("20251216366900020031"));
         }
 
         @Test
@@ -149,12 +158,14 @@ class CustomerControllerTest {
         @Test
         @DisplayName("should return all customers")
         void shouldReturnAll() throws Exception {
-            CustomerResponse response2 = new CustomerResponse("2", "María", "García", "Ruiz", "maria@example.com");
+            CustomerResponse response2 = new CustomerResponse("2", "María", "García", "Ruiz", "maria@example.com", Collections.emptyList());
             Customer customer2 = new Customer("2", "María", "García", "Ruiz", "maria@example.com");
 
             when(customerService.findAll()).thenReturn(List.of(customer, customer2));
-            when(customerMapper.toResponse(customer)).thenReturn(response);
-            when(customerMapper.toResponse(customer2)).thenReturn(response2);
+            when(orderApiPort.findOrderRefsByUserId("12345-789")).thenReturn(Collections.emptyList());
+            when(orderApiPort.findOrderRefsByUserId("2")).thenReturn(Collections.emptyList());
+            when(customerMapper.toResponse(customer, Collections.emptyList())).thenReturn(response);
+            when(customerMapper.toResponse(customer2, Collections.emptyList())).thenReturn(response2);
 
             mockMvc.perform(get("/api/v1/customers"))
                     .andExpect(status().isOk())

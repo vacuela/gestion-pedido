@@ -6,6 +6,7 @@ import com.retail.management.order.application.mapper.CustomerMapper;
 import com.retail.management.order.domain.exception.CustomerNotFoundException;
 import com.retail.management.order.domain.model.Customer;
 import com.retail.management.order.domain.port.in.CustomerServicePort;
+import com.retail.management.order.domain.port.out.OrderApiPort;
 import com.retail.management.order.infrastructure.rest.dto.ErrorResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -27,10 +28,13 @@ public class CustomerController {
 
     private final CustomerServicePort customerService;
     private final CustomerMapper customerMapper;
+    private final OrderApiPort orderApiPort;
 
-    public CustomerController(CustomerServicePort customerService, CustomerMapper customerMapper) {
+    public CustomerController(CustomerServicePort customerService, CustomerMapper customerMapper,
+                              OrderApiPort orderApiPort) {
         this.customerService = customerService;
         this.customerMapper = customerMapper;
+        this.orderApiPort = orderApiPort;
     }
 
     @PostMapping
@@ -58,7 +62,8 @@ public class CustomerController {
     public ResponseEntity<CustomerResponse> findById(@PathVariable String id) {
         Customer customer = customerService.findById(id)
                 .orElseThrow(() -> new CustomerNotFoundException(id));
-        return ResponseEntity.ok(customerMapper.toResponse(customer));
+        List<String> orders = orderApiPort.findOrderRefsByUserId(customer.getUserId());
+        return ResponseEntity.ok(customerMapper.toResponse(customer, orders));
     }
 
     @GetMapping
@@ -66,7 +71,10 @@ public class CustomerController {
     @ApiResponse(responseCode = "200", description = "List of customers")
     public ResponseEntity<List<CustomerResponse>> findAll() {
         List<CustomerResponse> customers = customerService.findAll().stream()
-                .map(customerMapper::toResponse)
+                .map(customer -> {
+                    List<String> orders = orderApiPort.findOrderRefsByUserId(customer.getUserId());
+                    return customerMapper.toResponse(customer, orders);
+                })
                 .toList();
         return ResponseEntity.ok(customers);
     }

@@ -2,6 +2,8 @@ package com.retail.management.order.application.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
+import java.util.List;
+
 @Schema(description = "Cuerpo de respuesta que representa un cliente")
 public record CustomerResponse(
 
@@ -18,6 +20,9 @@ public record CustomerResponse(
         String apellidoMaterno,
 
         @Schema(description = "Correo electrónico del Cliente", example = "juan.perez@example.com")
-        String email
+        String email,
+
+        @Schema(description = "Lista de números de pedido del cliente", example = "[\"20251216366900020031\"]")
+        List<String> orders
 ) {
 }

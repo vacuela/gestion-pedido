@@ -5,6 +5,9 @@ import com.retail.management.order.application.dto.CustomerResponse;
 import com.retail.management.order.domain.model.Customer;
 import org.springframework.stereotype.Component;
 
+import java.util.Collections;
+import java.util.List;
+
 @Component
 public class CustomerMapper {
 
@@ -19,12 +22,17 @@ public class CustomerMapper {
     }
 
     public CustomerResponse toResponse(Customer customer) {
+        return toResponse(customer, Collections.emptyList());
+    }
+
+    public CustomerResponse toResponse(Customer customer, List<String> orders) {
         return new CustomerResponse(
                 customer.getUserId(),
                 customer.getNombre(),
                 customer.getApellidoPaterno(),
                 customer.getApellidoMaterno(),
-                customer.getEmail()
+                customer.getEmail(),
+                orders
         );
     }
 }

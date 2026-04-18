@@ -5,6 +5,9 @@ spring:
         mongodb:
             uri: mongodb://localhost:27017/order_db
 
+order-api:
+    base-url: https://6994a4eab081bc23e9c0f61e.mockapi.io
+
 springdoc:
     api-docs:
         path: /api-docs
