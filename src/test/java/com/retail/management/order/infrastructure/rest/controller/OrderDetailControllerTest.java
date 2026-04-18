@@ -273,4 +273,50 @@ class OrderDetailControllerTest {
                     .andExpect(status().isBadRequest());
         }
     }
+
+    @Nested
+    @DisplayName("DELETE /api/v1/order-details/{id}")
+    class DeleteOrderDetail {
+
+        private static final String ORDER_DETAIL_ID = "3010091676";
+
+        @Test
+        @DisplayName("should delete order detail and return 204")
+        void shouldDeleteOrderDetailAndReturn204() throws Exception {
+            when(orderDetailService.deleteOrderDetail(ORDER_DETAIL_ID))
+                    .thenReturn(mock(PedidoResponse.class));
+
+            mockMvc.perform(delete("/api/v1/order-details/{id}", ORDER_DETAIL_ID))
+                    .andExpect(status().isNoContent())
+                    .andExpect(jsonPath("$").doesNotExist());
+
+            verify(orderDetailService).deleteOrderDetail(ORDER_DETAIL_ID);
+        }
+
+        @Test
+        @DisplayName("should return 404 when order detail not found")
+        void shouldReturn404WhenOrderDetailNotFound() throws Exception {
+            when(orderDetailService.deleteOrderDetail("INVALID"))
+                    .thenThrow(new OrderNotFoundException("INVALID"));
+
+            mockMvc.perform(delete("/api/v1/order-details/{id}", "INVALID"))
+                    .andExpect(status().isNotFound())
+                    .andExpect(jsonPath("$.status").value(404));
+
+            verify(orderDetailService).deleteOrderDetail("INVALID");
+        }
+
+        @Test
+        @DisplayName("should return 502 when external API fails during deletion")
+        void shouldReturn502WhenExternalApiFailsDuringDeletion() throws Exception {
+            when(orderDetailService.deleteOrderDetail(ORDER_DETAIL_ID))
+                    .thenThrow(new ExternalApiException("Error deleting order"));
+
+            mockMvc.perform(delete("/api/v1/order-details/{id}", ORDER_DETAIL_ID))
+                    .andExpect(status().isBadGateway())
+                    .andExpect(jsonPath("$.status").value(502));
+
+            verify(orderDetailService).deleteOrderDetail(ORDER_DETAIL_ID);
+        }
+    }
 }

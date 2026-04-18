@@ -103,7 +103,7 @@ public class OrderDetailController {
             @ApiResponse(responseCode = "404", description = "Order not found",
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
-    public ResponseEntity<Void> delete(@PathVariable String id) {
+    public ResponseEntity<Void> deleteOrderDetail(@PathVariable String id) {
         orderDetailService.deleteOrderDetail(id);
         return ResponseEntity.noContent().build();
     }
