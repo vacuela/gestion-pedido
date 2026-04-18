@@ -154,4 +154,27 @@ public class OrderDetailService implements OrderDetailServicePort {
 
         return result;
     }
+
+    @Override
+    public PedidoResponse deleteOrderDetail(String orderRef) {
+        List<PedidoResponse> pedidos = pedidoApiPort.findPedidoByOrderRef(orderRef);
+
+        if (pedidos == null || pedidos.isEmpty()) {
+            throw new OrderNotFoundException(orderRef);
+        }
+
+        PedidoResponse existingPedido = pedidos.getFirst();
+
+        List<String> itemIds = existingPedido.items();
+
+        for (String itemId : itemIds) {
+            List<ItemResponse> items = itemApiPort.findItemByItemId(itemId);
+            if (items != null && !items.isEmpty()) {
+                ItemResponse item = items.getFirst();
+                itemApiPort.deleteItem(item.id());
+            }
+        }
+
+        return pedidoApiPort.deletePedido(existingPedido.id());
+    }
 }

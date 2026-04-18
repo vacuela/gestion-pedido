@@ -13,4 +13,6 @@ public interface OrderDetailServicePort {
     PedidoResponse createOrderDetail(OrderDetailRequest request);
 
     PedidoResponse updateOrderDetail(String orderRef, OrderDetailRequest request);
+
+    PedidoResponse deleteOrderDetail(String orderRef);
 }

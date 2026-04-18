@@ -94,4 +94,17 @@ public class OrderDetailController {
         PedidoResponse updated = orderDetailService.updateOrderDetail(orderRef, request);
         return ResponseEntity.ok(updated);
     }
+
+
+    @DeleteMapping("/{id}")
+    @Operation(summary = "Delete a Order", description = "Deletes a Order by their unique identifier")
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "Order deleted successfully"),
+            @ApiResponse(responseCode = "404", description = "Order not found",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    public ResponseEntity<Void> delete(@PathVariable String id) {
+        orderDetailService.deleteOrderDetail(id);
+        return ResponseEntity.noContent().build();
+    }
 }

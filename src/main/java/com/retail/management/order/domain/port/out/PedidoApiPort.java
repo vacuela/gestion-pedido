@@ -11,4 +11,6 @@ public interface PedidoApiPort {
     PedidoResponse createPedido(PedidoResponse pedido);
 
     PedidoResponse updatePedido(String id, PedidoResponse pedido);
+
+    PedidoResponse deletePedido(String id);
 }

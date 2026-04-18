@@ -67,4 +67,17 @@ public class PedidoApiAdapter implements PedidoApiPort {
             throw new ExternalApiException("Error updating order with id: " + id, e);
         }
     }
+
+    @Override
+    public PedidoResponse deletePedido(String id) {
+        try {
+            return restClient.delete()
+                    .uri("/api/v1/pedidos/{id}", id)
+                    .retrieve()
+                    .body(PedidoResponse.class);
+        } catch (Exception e) {
+            log.error("Error deleting pedido id={}: {}", id, e.getMessage());
+            throw new ExternalApiException("Error deleting order with id: " + id, e);
+        }
+    }   
 }
