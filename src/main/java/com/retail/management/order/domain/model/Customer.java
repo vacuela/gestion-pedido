@@ -1,5 +1,7 @@
 package com.retail.management.order.domain.model;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 public class Customer {
@@ -9,6 +11,7 @@ public class Customer {
     private String apellidoPaterno;
     private String apellidoMaterno;
     private String email;
+    private List<DeliveryData> datosEntrega = new ArrayList<>();
 
     public Customer() {
     }
@@ -59,6 +62,14 @@ public class Customer {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public List<DeliveryData> getDatosEntrega() {
+        return datosEntrega;
+    }
+
+    public void setDatosEntrega(List<DeliveryData> datosEntrega) {
+        this.datosEntrega = datosEntrega;
     }
 
     @Override

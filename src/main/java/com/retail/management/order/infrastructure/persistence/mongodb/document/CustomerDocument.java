@@ -4,6 +4,9 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Document(collection = "customers")
 public class CustomerDocument {
 
@@ -15,6 +18,8 @@ public class CustomerDocument {
 
     @Indexed(unique = true)
     private String email;
+
+    private List<DeliveryDataDocument> datosEntrega = new ArrayList<>();
 
     public CustomerDocument() {
     }
@@ -65,5 +70,13 @@ public class CustomerDocument {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public List<DeliveryDataDocument> getDatosEntrega() {
+        return datosEntrega;
+    }
+
+    public void setDatosEntrega(List<DeliveryDataDocument> datosEntrega) {
+        this.datosEntrega = datosEntrega;
     }
 }

@@ -1,6 +1,7 @@
 package com.retail.management.order.infrastructure.rest.exception;
 
 import com.retail.management.order.domain.exception.CustomerNotFoundException;
+import com.retail.management.order.domain.exception.DeliveryDataNotFoundException;
 import com.retail.management.order.domain.exception.DuplicateEmailException;
 import com.retail.management.order.infrastructure.rest.dto.ErrorResponse;
 import org.springframework.http.HttpStatus;
@@ -17,6 +18,12 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(CustomerNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleCustomerNotFound(CustomerNotFoundException ex) {
+        return new ErrorResponse(HttpStatus.NOT_FOUND.value(), ex.getMessage());
+    }
+
+    @ExceptionHandler(DeliveryDataNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse handleDeliveryDataNotFound(DeliveryDataNotFoundException ex) {
         return new ErrorResponse(HttpStatus.NOT_FOUND.value(), ex.getMessage());
     }
 
