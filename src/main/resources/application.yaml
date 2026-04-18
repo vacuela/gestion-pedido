@@ -1,0 +1,13 @@
+spring:
+    application:
+        name: order
+    data:
+        mongodb:
+            uri: mongodb://localhost:27017/order_db
+
+springdoc:
+    api-docs:
+        path: /api-docs
+    swagger-ui:
+        path: /swagger-ui.html
+        operationsSorter: method
