@@ -6,6 +6,7 @@ import com.retail.management.order.infrastructure.rest.dto.PedidoResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
@@ -34,6 +35,36 @@ public class PedidoApiAdapter implements PedidoApiPort {
         } catch (Exception e) {
             log.error("Error fetching pedido for orderRef={}: {}", orderRef, e.getMessage());
             throw new ExternalApiException("Error fetching order data for orderRef: " + orderRef, e);
+        }
+    }
+
+    @Override
+    public PedidoResponse createPedido(PedidoResponse pedido) {
+        try {
+            return restClient.post()
+                    .uri("/api/v1/pedidos")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(pedido)
+                    .retrieve()
+                    .body(PedidoResponse.class);
+        } catch (Exception e) {
+            log.error("Error creating pedido for orderRef={}: {}", pedido.orderRef(), e.getMessage());
+            throw new ExternalApiException("Error creating order for orderRef: " + pedido.orderRef(), e);
+        }
+    }
+
+    @Override
+    public PedidoResponse updatePedido(String id, PedidoResponse pedido) {
+        try {
+            return restClient.put()
+                    .uri("/api/v1/pedidos/{id}", id)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(pedido)
+                    .retrieve()
+                    .body(PedidoResponse.class);
+        } catch (Exception e) {
+            log.error("Error updating pedido id={}: {}", id, e.getMessage());
+            throw new ExternalApiException("Error updating order with id: " + id, e);
         }
     }
 }

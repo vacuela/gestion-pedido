@@ -6,6 +6,7 @@ import com.retail.management.order.infrastructure.rest.dto.ItemResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
@@ -34,6 +35,34 @@ public class ItemApiAdapter implements ItemApiPort {
         } catch (Exception e) {
             log.error("Error fetching item for itemId={}: {}", itemId, e.getMessage());
             throw new ExternalApiException("Error fetching item data for itemId: " + itemId, e);
+        }
+    }
+
+    @Override
+    public ItemResponse createItem(ItemResponse item) {
+        try {
+            return restClient.post()
+                    .uri("/api/v1/items")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(item)
+                    .retrieve()
+                    .body(ItemResponse.class);
+        } catch (Exception e) {
+            log.error("Error creating item for itemId={}: {}", item.itemId(), e.getMessage());
+            throw new ExternalApiException("Error creating item for itemId: " + item.itemId(), e);
+        }
+    }
+
+    @Override
+    public ItemResponse deleteItem(String id) {
+        try {
+            return restClient.delete()
+                    .uri("/api/v1/items/{id}", id)
+                    .retrieve()
+                    .body(ItemResponse.class);
+        } catch (Exception e) {
+            log.error("Error deleting item for id={}: {}", id, e.getMessage());
+            throw new ExternalApiException("Error deleting item for id: " + id, e);
         }
     }
 }
