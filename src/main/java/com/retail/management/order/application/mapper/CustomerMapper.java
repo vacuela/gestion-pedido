@@ -10,9 +10,9 @@ public class CustomerMapper {
 
     public Customer toDomain(CustomerRequest request) {
         Customer customer = new Customer();
-        customer.setNombre(request.firstName());
-        customer.setApellidoPaterno(request.paternalLastName());
-        customer.setApellidoMaterno(request.maternalLastName());
+        customer.setNombre(request.nombre());
+        customer.setApellidoPaterno(request.apellidoPaterno());
+        customer.setApellidoMaterno(request.apellidoMaterno());
         customer.setEmail(request.email());
         return customer;
     }

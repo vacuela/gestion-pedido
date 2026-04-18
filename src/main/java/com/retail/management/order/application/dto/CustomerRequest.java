@@ -8,19 +8,19 @@ import jakarta.validation.constraints.Size;
 @Schema(description = "Request body for creating or updating a customer")
 public record CustomerRequest(
 
-        @NotBlank(message = "First name is required")
-        @Size(min = 2, max = 100, message = "First name must be between 2 and 100 characters")
+        @NotBlank(message = "Nombre is required")
+        @Size(min = 2, max = 100, message = "Nombre must be between 2 and 100 characters")
         @Schema(description = "Customer's first name", example = "Juan")
-        String firstName,
+        String nombre,
 
-        @NotBlank(message = "Paternal last name is required")
-        @Size(min = 2, max = 100, message = "Paternal last name must be between 2 and 100 characters")
+        @NotBlank(message = "Apellido Paterno is required")
+        @Size(min = 2, max = 100, message = "Apellido Paterno must be between 2 and 100 characters")
         @Schema(description = "Customer's paternal last name", example = "Pérez")
-        String paternalLastName,
+        String apellidoPaterno,
 
-        @Size(max = 100, message = "Maternal last name must be at most 100 characters")
+        @Size(max = 100, message = "Apellido Materno must be at most 100 characters")
         @Schema(description = "Customer's maternal last name", example = "López")
-        String maternalLastName,
+        String apellidoMaterno,
 
         @NotBlank(message = "Email is required")
         @Email(message = "Email must be a valid email address")
