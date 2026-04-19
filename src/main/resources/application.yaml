@@ -7,6 +7,8 @@ spring:
     data:
         mongodb:
             uri: ${MONGODB_URI}
+    main:
+        web-application-type: servlet
 
 order-api:
     base-url: ${ORDER_API_BASE_URL}
