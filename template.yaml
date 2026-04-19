@@ -1,0 +1,63 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Order Management - Spring Boot Serverless API
+
+Globals:
+  Function:
+    Timeout: 30
+    MemorySize: 1024
+    Runtime: java21
+    Architectures:
+      - x86_64
+    Environment:
+      Variables:
+        MONGODB_URI: !Ref MongoDbUri
+        ORDER_API_BASE_URL: !Ref OrderApiBaseUrl
+
+Parameters:
+  MongoDbUri:
+    Type: String
+    Description: MongoDB connection URI
+    NoEcho: true
+  OrderApiBaseUrl:
+    Type: String
+    Description: Base URL for the external Order API
+
+Resources:
+  OrderFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: com.retail.management.order.StreamLambdaHandler::handleRequest
+      CodeUri: .
+      SnapStart:
+        ApplyOn: PublishedVersions
+      AutoPublishAlias: live
+      Policies:
+        - AWSLambdaBasicExecutionRole
+      Events:
+        ApiProxy:
+          Type: Api
+          Properties:
+            Path: /{proxy+}
+            Method: ANY
+            RestApiId: !Ref OrderApi
+        ApiRoot:
+          Type: Api
+          Properties:
+            Path: /
+            Method: ANY
+            RestApiId: !Ref OrderApi
+
+  OrderApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: prod
+      OpenApiVersion: '3.0.1'
+
+Outputs:
+  OrderApiUrl:
+    Description: URL of the Order Management API
+    Value: !Sub "https://${OrderApi}.execute-api.${AWS::Region}.amazonaws.com/prod/"
+  OrderFunctionArn:
+    Description: ARN of the Order Lambda function
+    Value: !GetAtt OrderFunction.Arn
