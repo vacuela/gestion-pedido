@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.retail.management.order.application.dto.ItemRequest;
 import com.retail.management.order.application.dto.OrderDetailRequest;
 import com.retail.management.order.application.dto.OrderDetailResponse;
+import com.retail.management.order.application.dto.OrderSearchResponse;
 import com.retail.management.order.application.mapper.OrderDetailMapper;
 import com.retail.management.order.domain.exception.ExternalApiException;
 import com.retail.management.order.domain.exception.OrderNotFoundException;
@@ -317,6 +318,68 @@ class OrderDetailControllerTest {
                     .andExpect(jsonPath("$.status").value(502));
 
             verify(orderDetailService).deleteOrderDetail(ORDER_DETAIL_ID);
+        }
+    }
+
+    @Nested
+    @DisplayName("GET /api/v1/order-details/search?q={query}")
+    class SearchOrders {
+
+        @Test
+        @DisplayName("should return matching orders when query matches storeName")
+        void shouldReturnMatchingOrdersByStoreName() throws Exception {
+            OrderSearchResponse response = new OrderSearchResponse(
+                    "3010091676", "75c97531-abf5-4524-8107-90aa48d08efc",
+                    "online", "2025-12-06", false, false, "L  SANTA FE",
+                    List.of(new OrderSearchResponse.ItemDetail(
+                            "3010091676-1132351437", "1132351437", 3, "Pantalón Levi´s", "Compra en línea"
+                    ))
+            );
+
+            when(orderDetailService.searchOrders("santa fe")).thenReturn(List.of(response));
+
+            mockMvc.perform(get("/api/v1/order-details/search")
+                            .param("q", "santa fe"))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.length()").value(1))
+                    .andExpect(jsonPath("$[0].orderRef").value("3010091676"))
+                    .andExpect(jsonPath("$[0].storeName").value("L  SANTA FE"))
+                    .andExpect(jsonPath("$[0].items.length()").value(1))
+                    .andExpect(jsonPath("$[0].items[0].displayName").value("Pantalón Levi´s"));
+
+            verify(orderDetailService).searchOrders("santa fe");
+        }
+
+        @Test
+        @DisplayName("should return empty list when no orders match")
+        void shouldReturnEmptyListWhenNoMatch() throws Exception {
+            when(orderDetailService.searchOrders("nonexistent")).thenReturn(List.of());
+
+            mockMvc.perform(get("/api/v1/order-details/search")
+                            .param("q", "nonexistent"))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.length()").value(0));
+
+            verify(orderDetailService).searchOrders("nonexistent");
+        }
+
+        @Test
+        @DisplayName("should return 400 when query param is missing")
+        void shouldReturn400WhenQueryParamMissing() throws Exception {
+            mockMvc.perform(get("/api/v1/order-details/search"))
+                    .andExpect(status().isBadRequest());
+        }
+
+        @Test
+        @DisplayName("should return 502 when external API fails during search")
+        void shouldReturn502WhenExternalApiFailsDuringSearch() throws Exception {
+            when(orderDetailService.searchOrders("santa"))
+                    .thenThrow(new ExternalApiException("Error fetching orders"));
+
+            mockMvc.perform(get("/api/v1/order-details/search")
+                            .param("q", "santa"))
+                    .andExpect(status().isBadGateway())
+                    .andExpect(jsonPath("$.status").value(502));
         }
     }
 }

@@ -2,6 +2,7 @@ package com.retail.management.order.infrastructure.rest.controller;
 
 import com.retail.management.order.application.dto.OrderDetailRequest;
 import com.retail.management.order.application.dto.OrderDetailResponse;
+import com.retail.management.order.application.dto.OrderSearchResponse;
 import com.retail.management.order.application.mapper.OrderDetailMapper;
 import com.retail.management.order.domain.model.OrderDetail;
 import com.retail.management.order.domain.port.in.OrderDetailServicePort;
@@ -32,6 +33,23 @@ public class OrderDetailController {
     public OrderDetailController(OrderDetailServicePort orderDetailService, OrderDetailMapper orderDetailMapper) {
         this.orderDetailService = orderDetailService;
         this.orderDetailMapper = orderDetailMapper;
+    }
+
+    @GetMapping("/search")
+    @Operation(summary = "Search orders with flexible text matching",
+            description = "Searches orders by orderRef, orderStatus, storeName, or product displayName. " +
+                    "Supports type-ahead: ignores accents, commas, case, and tolerates minor spelling mistakes.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Search results retrieved successfully"),
+            @ApiResponse(responseCode = "502", description = "Error communicating with external API",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    public ResponseEntity<List<OrderSearchResponse>> searchOrders(
+            @Parameter(description = "Search query text (type-ahead)", example = "santa fe")
+            @RequestParam String q) {
+
+        List<OrderSearchResponse> results = orderDetailService.searchOrders(q);
+        return ResponseEntity.ok(results);
     }
 
     @GetMapping

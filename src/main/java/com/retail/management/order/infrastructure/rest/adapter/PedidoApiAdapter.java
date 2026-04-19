@@ -24,6 +24,21 @@ public class PedidoApiAdapter implements PedidoApiPort {
     }
 
     @Override
+    public List<PedidoResponse> findAllPedidos() {
+        try {
+            List<PedidoResponse> pedidos = restClient.get()
+                    .uri("/api/v1/pedidos")
+                    .retrieve()
+                    .body(new ParameterizedTypeReference<>() {});
+
+            return pedidos != null ? pedidos : List.of();
+        } catch (Exception e) {
+            log.error("Error fetching all pedidos: {}", e.getMessage());
+            throw new ExternalApiException("Error fetching all orders", e);
+        }
+    }
+
+    @Override
     public List<PedidoResponse> findPedidoByOrderRef(String orderRef) {
         try {
             List<PedidoResponse> pedidos = restClient.get()

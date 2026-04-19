@@ -24,6 +24,21 @@ public class ItemApiAdapter implements ItemApiPort {
     }
 
     @Override
+    public List<ItemResponse> findAllItems() {
+        try {
+            List<ItemResponse> items = restClient.get()
+                    .uri("/api/v1/items")
+                    .retrieve()
+                    .body(new ParameterizedTypeReference<>() {});
+
+            return items != null ? items : List.of();
+        } catch (Exception e) {
+            log.error("Error fetching all items: {}", e.getMessage());
+            throw new ExternalApiException("Error fetching all items", e);
+        }
+    }
+
+    @Override
     public List<ItemResponse> findItemByItemId(String itemId) {
         try {
             List<ItemResponse> items = restClient.get()

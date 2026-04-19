@@ -2,12 +2,14 @@ package com.retail.management.order.application.service;
 
 import com.retail.management.order.application.dto.ItemRequest;
 import com.retail.management.order.application.dto.OrderDetailRequest;
+import com.retail.management.order.application.dto.OrderSearchResponse;
 import com.retail.management.order.domain.exception.OrderNotFoundException;
 import com.retail.management.order.domain.model.OrderDetail;
 import com.retail.management.order.domain.port.out.ItemApiPort;
 import com.retail.management.order.domain.port.out.PedidoApiPort;
 import com.retail.management.order.infrastructure.rest.dto.ItemResponse;
 import com.retail.management.order.infrastructure.rest.dto.PedidoResponse;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -288,6 +290,165 @@ class OrderDetailServiceTest {
 
             assertThrows(OrderNotFoundException.class,
                     () -> orderDetailService.updateOrderDetail("INVALID", request));
+        }
+    }
+
+    @Nested
+    @DisplayName("searchOrders")
+    class SearchOrders {
+
+        private PedidoResponse pedido1;
+        private PedidoResponse pedido2;
+        private ItemResponse item1;
+        private ItemResponse item2;
+        private ItemResponse item3;
+
+        @BeforeEach
+        void setUp() {
+            pedido1 = new PedidoResponse(
+                    "3010091676", "user-1", "online", "2025-12-06",
+                    false, false,
+                    List.of("3010091676-1132351437", "3010091676-1179743767"),
+                    "L  SANTA FE", "1"
+            );
+            pedido2 = new PedidoResponse(
+                    "3010091677", "user-2", "physical", "2025-12-08",
+                    false, false,
+                    List.of("3010091677-999"),
+                    "Liverpool Galerías Toluca", "2"
+            );
+
+            item1 = new ItemResponse("3010091676-1132351437", "1132351437", 3, "Pantalón Levi's", "Compra en línea", "1");
+            item2 = new ItemResponse("3010091676-1179743767", "1179743767", 1, "Laptop Lenovo thinkpad", "Pedido entregado", "2");
+            item3 = new ItemResponse("3010091677-999", "999", 2, "Camisa Polo Ralph Lauren", "Compra en línea", "3");
+        }
+
+        @Test
+        @DisplayName("should filter orders by storeName")
+        void shouldFilterByStoreName() {
+            when(pedidoApiPort.findAllPedidos()).thenReturn(List.of(pedido1, pedido2));
+            when(itemApiPort.findAllItems()).thenReturn(List.of(item1, item2, item3));
+
+            List<OrderSearchResponse> result = orderDetailService.searchOrders("santa fe");
+
+            assertEquals(1, result.size());
+            assertEquals("3010091676", result.getFirst().orderRef());
+            assertEquals("L  SANTA FE", result.getFirst().storeName());
+            assertEquals(2, result.getFirst().items().size());
+        }
+
+        @Test
+        @DisplayName("should filter orders by orderRef")
+        void shouldFilterByOrderRef() {
+            when(pedidoApiPort.findAllPedidos()).thenReturn(List.of(pedido1, pedido2));
+            when(itemApiPort.findAllItems()).thenReturn(List.of(item1, item2, item3));
+
+            List<OrderSearchResponse> result = orderDetailService.searchOrders("3010091677");
+
+            assertEquals(2, result.size());
+            assertEquals("3010091676", result.getFirst().orderRef());
+        }
+
+        @Test
+        @DisplayName("should filter orders by orderStatus")
+        void shouldFilterByOrderStatus() {
+            when(pedidoApiPort.findAllPedidos()).thenReturn(List.of(pedido1, pedido2));
+            when(itemApiPort.findAllItems()).thenReturn(List.of(item1, item2, item3));
+
+            List<OrderSearchResponse> result = orderDetailService.searchOrders("2025-12-08");
+
+            assertEquals(2, result.size());
+            assertEquals("3010091676", result.getFirst().orderRef());
+        }
+
+        @Test
+        @DisplayName("should filter orders by item displayName")
+        void shouldFilterByItemDisplayName() {
+            when(pedidoApiPort.findAllPedidos()).thenReturn(List.of(pedido1, pedido2));
+            when(itemApiPort.findAllItems()).thenReturn(List.of(item1, item2, item3));
+
+            List<OrderSearchResponse> result = orderDetailService.searchOrders("laptop");
+
+            assertEquals(1, result.size());
+            assertEquals("3010091676", result.getFirst().orderRef());
+        }
+
+        @Test
+        @DisplayName("should be case insensitive")
+        void shouldBeCaseInsensitive() {
+            when(pedidoApiPort.findAllPedidos()).thenReturn(List.of(pedido1, pedido2));
+            when(itemApiPort.findAllItems()).thenReturn(List.of(item1, item2, item3));
+
+            List<OrderSearchResponse> result = orderDetailService.searchOrders("SANTA FE");
+
+            assertEquals(1, result.size());
+            assertEquals("3010091676", result.getFirst().orderRef());
+        }
+
+        @Test
+        @DisplayName("should ignore accents in search")
+        void shouldIgnoreAccents() {
+            when(pedidoApiPort.findAllPedidos()).thenReturn(List.of(pedido1, pedido2));
+            when(itemApiPort.findAllItems()).thenReturn(List.of(item1, item2, item3));
+
+            List<OrderSearchResponse> result = orderDetailService.searchOrders("galerias");
+
+            assertEquals(1, result.size());
+            assertEquals("3010091677", result.getFirst().orderRef());
+        }
+
+        @Test
+        @DisplayName("should return empty list when no match")
+        void shouldReturnEmptyWhenNoMatch() {
+            when(pedidoApiPort.findAllPedidos()).thenReturn(List.of(pedido1, pedido2));
+            when(itemApiPort.findAllItems()).thenReturn(List.of(item1, item2, item3));
+
+            List<OrderSearchResponse> result = orderDetailService.searchOrders("zzzznonexistent");
+
+            assertTrue(result.isEmpty());
+        }
+
+        @Test
+        @DisplayName("should return all orders when query is empty")
+        void shouldReturnAllWhenQueryEmpty() {
+            when(pedidoApiPort.findAllPedidos()).thenReturn(List.of(pedido1, pedido2));
+            when(itemApiPort.findAllItems()).thenReturn(List.of(item1, item2, item3));
+
+            List<OrderSearchResponse> result = orderDetailService.searchOrders("");
+
+            assertEquals(2, result.size());
+        }
+
+        @Test
+        @DisplayName("should include item details in response")
+        void shouldIncludeItemDetails() {
+            when(pedidoApiPort.findAllPedidos()).thenReturn(List.of(pedido1));
+            when(itemApiPort.findAllItems()).thenReturn(List.of(item1, item2));
+
+            List<OrderSearchResponse> result = orderDetailService.searchOrders("santa");
+
+            assertEquals(1, result.size());
+            OrderSearchResponse order = result.getFirst();
+            assertEquals(2, order.items().size());
+            assertEquals("Pantalón Levi's", order.items().get(0).displayName());
+            assertEquals("Laptop Lenovo thinkpad", order.items().get(1).displayName());
+        }
+
+        @Test
+        @DisplayName("should handle pedido with null items list")
+        void shouldHandlePedidoWithNullItems() {
+            PedidoResponse pedidoNoItems = new PedidoResponse(
+                    "3010091678", "user-3", "online", "2025-12-06",
+                    false, false, null, "SANTA FE Store", "3"
+            );
+
+            when(pedidoApiPort.findAllPedidos()).thenReturn(List.of(pedidoNoItems));
+            when(itemApiPort.findAllItems()).thenReturn(List.of());
+
+            List<OrderSearchResponse> result = orderDetailService.searchOrders("santa");
+
+            assertEquals(1, result.size());
+            assertTrue(result.getFirst().items().isEmpty());
         }
     }
 }

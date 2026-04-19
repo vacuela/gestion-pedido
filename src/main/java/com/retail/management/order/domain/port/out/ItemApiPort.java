@@ -6,6 +6,8 @@ import java.util.List;
 
 public interface ItemApiPort {
 
+    List<ItemResponse> findAllItems();
+
     List<ItemResponse> findItemByItemId(String itemId);
 
     ItemResponse createItem(ItemResponse item);

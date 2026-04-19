@@ -2,11 +2,13 @@ package com.retail.management.order.application.service;
 
 import com.retail.management.order.application.dto.ItemRequest;
 import com.retail.management.order.application.dto.OrderDetailRequest;
+import com.retail.management.order.application.dto.OrderSearchResponse;
 import com.retail.management.order.domain.exception.OrderNotFoundException;
 import com.retail.management.order.domain.model.OrderDetail;
 import com.retail.management.order.domain.port.in.OrderDetailServicePort;
 import com.retail.management.order.domain.port.out.ItemApiPort;
 import com.retail.management.order.domain.port.out.PedidoApiPort;
+import com.retail.management.order.domain.util.FuzzyTextMatcher;
 import com.retail.management.order.infrastructure.rest.dto.ItemResponse;
 import com.retail.management.order.infrastructure.rest.dto.PedidoResponse;
 import org.slf4j.Logger;
@@ -15,6 +17,9 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 public class OrderDetailService implements OrderDetailServicePort {
@@ -27,6 +32,73 @@ public class OrderDetailService implements OrderDetailServicePort {
     public OrderDetailService(PedidoApiPort pedidoApiPort, ItemApiPort itemApiPort) {
         this.pedidoApiPort = pedidoApiPort;
         this.itemApiPort = itemApiPort;
+    }
+
+    @Override
+    public List<OrderSearchResponse> searchOrders(String query) {
+        List<PedidoResponse> allPedidos = pedidoApiPort.findAllPedidos();
+        List<ItemResponse> allItems = itemApiPort.findAllItems();
+
+        Map<String, ItemResponse> itemsByItemId = allItems.stream()
+                .collect(Collectors.toMap(ItemResponse::itemId, Function.identity(), (a, b) -> a));
+
+        return allPedidos.stream()
+                .filter(pedido -> matchesPedido(pedido, query, itemsByItemId))
+                .map(pedido -> toSearchResponse(pedido, itemsByItemId))
+                .toList();
+    }
+
+    private boolean matchesPedido(PedidoResponse pedido, String query, Map<String, ItemResponse> itemsByItemId) {
+        if (FuzzyTextMatcher.matches(pedido.orderRef(), query)) {
+            return true;
+        }
+        if (FuzzyTextMatcher.matches(pedido.orderStatus(), query)) {
+            return true;
+        }
+        if (FuzzyTextMatcher.matches(pedido.storeName(), query)) {
+            return true;
+        }
+
+        if (pedido.items() != null) {
+            for (String itemId : pedido.items()) {
+                ItemResponse item = itemsByItemId.get(itemId);
+                if (item != null && FuzzyTextMatcher.matches(item.displayName(), query)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    private OrderSearchResponse toSearchResponse(PedidoResponse pedido, Map<String, ItemResponse> itemsByItemId) {
+        List<OrderSearchResponse.ItemDetail> itemDetails = new ArrayList<>();
+
+        if (pedido.items() != null) {
+            for (String itemId : pedido.items()) {
+                ItemResponse item = itemsByItemId.get(itemId);
+                if (item != null) {
+                    itemDetails.add(new OrderSearchResponse.ItemDetail(
+                            item.itemId(),
+                            item.skuId(),
+                            item.quantity(),
+                            item.displayName(),
+                            item.deliveryStatus()
+                    ));
+                }
+            }
+        }
+
+        return new OrderSearchResponse(
+                pedido.orderRef(),
+                pedido.userId(),
+                pedido.canal(),
+                pedido.orderStatus(),
+                pedido.marketPlace(),
+                pedido.giftRegistry(),
+                pedido.storeName(),
+                itemDetails
+        );
     }
 
     @Override

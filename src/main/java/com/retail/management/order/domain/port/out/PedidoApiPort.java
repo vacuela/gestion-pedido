@@ -6,6 +6,8 @@ import java.util.List;
 
 public interface PedidoApiPort {
 
+    List<PedidoResponse> findAllPedidos();
+
     List<PedidoResponse> findPedidoByOrderRef(String orderRef);
 
     PedidoResponse createPedido(PedidoResponse pedido);
