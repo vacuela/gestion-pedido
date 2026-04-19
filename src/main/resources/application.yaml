@@ -3,10 +3,10 @@ spring:
         name: order
     data:
         mongodb:
-            uri: mongodb://localhost:27017/order_db
+            uri: ${MONGODB_URI}
 
 order-api:
-    base-url: https://6994a4eab081bc23e9c0f61e.mockapi.io
+    base-url: ${ORDER_API_BASE_URL}
 
 springdoc:
     api-docs:
